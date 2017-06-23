@@ -4,10 +4,11 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import java.io.FileReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wangming on 2017/6/22.
@@ -16,36 +17,40 @@ public class JvmArgsContent {
 
     public static final String[] COMLUMN_HEADER = new String[]{"参数", "值", "注释", "选中"};
 
-    public static Object[][] MEMORY;
-    public static Object[][] GC;
-    public static Object[][] GC_OUTPUT;
+    public static Map<String, Object[][]> ALL_ARGS = new HashMap<>();
 
     static {
-        List<JvmArg> memory = new ArrayList<>();
-        List<JvmArg> gc = new ArrayList<>();
-        List<JvmArg> gcOutput = new ArrayList<>();
-        load(memory, gc, gcOutput);
 
-        MEMORY = new Object[memory.size()][4];
-        for (int i = 0; i < memory.size(); i++) {
-            JvmArg arg = memory.get(i);
-            MEMORY[i] = new Object[]{arg.arg, arg.value, arg.comment, new Boolean(false)};
-        }
-        GC = new Object[gc.size()][4];
-        for (int i = 0; i < gc.size(); i++) {
-            JvmArg arg = gc.get(i);
-            GC[i] = new Object[]{arg.arg, arg.value, arg.comment, new Boolean(false)};
-        }
-        GC_OUTPUT = new Object[gcOutput.size()][4];
-        for (int i = 0; i < gcOutput.size(); i++) {
-            JvmArg arg = gcOutput.get(i);
-            GC_OUTPUT[i] = new Object[]{arg.arg, arg.value, arg.comment, new Boolean(false)};
+        Map<String, List<JvmArg>> allArgs = load();
+        for (Map.Entry<String, List<JvmArg>> entry : allArgs.entrySet()) {
+            String type = entry.getKey();
+            List<JvmArg> list = entry.getValue();
+            Object[][] args = ALL_ARGS.get(type);
+            if (args == null) {
+                args = new Object[list.size()][4];
+                ALL_ARGS.put(type, args);
+            }
+
+            for (int i = 0; i < list.size(); i++) {
+                JvmArg arg = list.get(i);
+                args[i] = new Object[]{arg.arg, arg.value, arg.comment, new Boolean(false)};
+            }
         }
     }
 
-    private static void load(List<JvmArg> memory, List<JvmArg> gc, List<JvmArg> gcOutput) {
+    private static Map<String, List<JvmArg>> load() {
+        Map<String, List<JvmArg>> allArgs = new HashMap<>();
         try {
-            Reader in = new FileReader("D:\\workspace\\idea-plugin\\jvmargs\\resources\\jvm.csv");
+            Reader in = new FileReader("D:\\workspace\\JvmArgsGenerate\\resources\\jvm.csv");
+            if (in == null) {
+                in = new FileReader("./jvm.csv");
+            }
+            if (in == null) {
+                in = new FileReader("jvm.csv");
+            }
+            if (in == null) {
+                in = new FileReader("/jvm.csv");
+            }
             Iterable<CSVRecord> records = new CSVParser(in, CSVFormat.EXCEL);
             for (CSVRecord record : records) {
                 JvmArg jvmArg = new JvmArg();
@@ -59,24 +64,18 @@ public class JvmArgsContent {
                     jvmArg.arg = array[0];
                     jvmArg.value = array[1];
                 }
-                switch (jvmArg.type) {
-                    case "1": {
-                        memory.add(jvmArg);
-                        break;
-                    }
-                    case "2": {
-                        gc.add(jvmArg);
-                        break;
-                    }
-                    case "3": {
-                        gcOutput.add(jvmArg);
-                        break;
-                    }
+
+                List<JvmArg> args = allArgs.get(jvmArg.type);
+                if (args == null) {
+                    args = new ArrayList<>();
+                    allArgs.put(jvmArg.type, args);
                 }
+                args.add(jvmArg);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return allArgs;
     }
 
     public static class JvmArg {

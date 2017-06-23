@@ -1,47 +1,47 @@
-1,-XX:NewSize=2.125m,,新生代对象生成时占用内存的默认值
-1,-XX:MaxNewSize=size,,新生成对象能占用内存的最大值
-1,-XX:MaxPermSize=64m,,方法区所能占用的最大内存（非堆内存）
-1,-XX:PermSize=64m,,方法区分配的初始内存
-1,-XX:MaxTenuringThreshold=15,,对象在新生代存活区切换的次数（坚持过MinorGC的次数，每坚持过一次，该值就增加1），大于该值会进入老年代
-1,-XX:MaxHeapFreeRatio=70,,GC后java堆中空闲量占的最大比例，大于该值，则堆内存会减少
-1,-XX:MinHeapFreeRatio=40,,GC后java堆中空闲量占的最小比例，小于该值，则堆内存会增加
-1,-XX:NewRatio=2,,新生代内存容量与老生代内存容量的比例
-1,-XX:ReservedCodeCacheSize= 32m,,保留代码占用的内存容量
-1,-XX:ThreadStackSize=512,,设置线程栈大小，若为0则使用系统默认值
-1,-XX:LargePageSizeInBytes=4m,,设置用于Java堆的大页面尺寸
-1,-XX:PretenureSizeThreshold= size ??,,大于该值的对象直接晋升入老年代（这种对象少用为好）
-1,-XX:SurvivorRatio=8,,Eden区域Survivor区的容量比值，如默认值为8，代表Eden：Survivor1：Survivor2=8:1:1
-2,-XX:-UseSerialGC,,启用串行GC，即采用Serial+Serial Old模式
-2,-XX:-UseParallelGC,,启用并行GC，即采用Parallel Scavenge+Serial Old收集器组合（-Server模式下的默认组合）
-2,-XX:GCTimeRatio=99,,设置用户执行时间占总时间的比例（默认值99，即1%的时间用于GC）。GC时间占总时间的比率.仅在使用ParallelScavenge收集器时生效
-2,-XX:MaxGCPauseMillis=time,,设置GC的最大停顿时间（这个参数只对Parallel Scavenge有效）。
-2,-XX:+UseParNewGC,,使用ParNew+Serial Old收集器组合
-2,-XX:ParallelGCThreads,,设置执行内存回收的线程数，在+UseParNewGC的情况下使用
-2,-XX:+UseParallelOldGC,,使用Parallel Scavenge +Parallel Old组合收集器
-2,-XX:+UseConcMarkSweepGC,,使用ParNew+CMS+Serial Old组合并发收集，优先使用ParNew+CMS，当用户线程内存不足时，采用备用方案Serial Old收集。
-2,-XX:-DisableExplicitGC,,禁止调用System.gc()；但jvm的gc仍然有效
-2,-XX:+ScavengeBeforeFullGC,,新生代GC优先于Full GC执行。在FullGC发生之前触发一次MinorGC
-2,,,"`-XX:`:禁止GC过程无限制的执行,如果过于频繁,就直接发生OutOfMemory"
-2,,,
-2,-XX:InitiatingHeapOccupancyPercent=n,,设置触发标记周期的Java堆占用率阈值.默认占用率是整个Java堆的45%.
-2,-XX:G1HeapRegionSize=n,,"设置的G1区域的大小.值是2的幂,范围是1MB到32MB之间.目标是根据最小的Java堆大小划分出约2048个区域."
-2,-XX:G1ReservePercent=n,,"设置作为空闲空间的预留内存百分比,以降低目标空间溢出的风险.默认值是10%.增加或减少百分比时,请确保对总的Java堆调整相同的量.JavaHotSpotVMbuild23中没有此设置."
-3,-XX:-CITime,,打印消耗在JIT编译的时间
-3,-XX:ErrorFile=./hs_err_pid<pid>.log,,保存错误日志或者数据到文件中(-XX:ErrorFile=./hs_err_pid<pid>.log)
-3,-XX:-ExtendedDTraceProbes,,开启solaris特有的dtrace探针
-3,-XX:HeapDumpPath=./java_pid<pid>.hprof,,指定导出堆信息时的路径或文件名
-3,-XX:-HeapDumpOnOutOfMemoryError,,当首次遭遇OOM时导出此时堆中相关信息
-3,-XX:OnError="<cmd args>;<cmd args>",,出现致命ERROR之后运行自定义命令
-3,-XX:OnOutOfMemoryError="<cmd args>;<cmd args>",,当首次遭遇OOM时执行自定义命令
-3,-XX:-PrintClassHistogram,,遇到Ctrl-Break后打印类实例的柱状信息，与jmap -histo功能相同
-3,-XX:-PrintConcurrentLocks,,遇到Ctrl-Break后打印并发锁的相关信息，与jstack -l功能相同
-3,-XX:-PrintCommandLineFlags,,打印在命令行中出现过的标记
-3,-XX:-PrintCompilation,,当一个方法被编译时打印相关信息
-3,-XX:-PrintGC,,每次GC时打印相关信息
-3,-XX:-PrintGCDetails,,每次GC时打印详细信息
-3,-XX:-PrintGCTimeStamps,,打印每次GC的时间戳
-3,-XX:-TraceClassLoading,,跟踪类的加载信息
-3,-XX:-TraceClassLoadingPreorder,,跟踪被引用到的所有类的加载信息
-3,-XX:-TraceClassResolution,,跟踪常量池
-3,-XX:-TraceClassUnloading,,跟踪类的卸载信息
-3,-XX:-TraceLoaderConstraints,,跟踪类加载器约束的相关信息
+内存参数,-XX:NewSize=2.125m,,新生代对象生成时占用内存的默认值
+内存参数,-XX:MaxNewSize=size,,新生成对象能占用内存的最大值
+内存参数,-XX:MaxPermSize=64m,,方法区所能占用的最大内存（非堆内存）
+内存参数,-XX:PermSize=64m,,方法区分配的初始内存
+内存参数,-XX:MaxTenuringThreshold=15,,对象在新生代存活区切换的次数（坚持过MinorGC的次数，每坚持过一次，该值就增加1），大于该值会进入老年代
+内存参数,-XX:MaxHeapFreeRatio=70,,GC后java堆中空闲量占的最大比例，大于该值，则堆内存会减少
+内存参数,-XX:MinHeapFreeRatio=40,,GC后java堆中空闲量占的最小比例，小于该值，则堆内存会增加
+内存参数,-XX:NewRatio=2,,新生代内存容量与老生代内存容量的比例
+内存参数,-XX:ReservedCodeCacheSize= 32m,,保留代码占用的内存容量
+内存参数,-XX:ThreadStackSize=512,,设置线程栈大小，若为0则使用系统默认值
+内存参数,-XX:LargePageSizeInBytes=4m,,设置用于Java堆的大页面尺寸
+内存参数,-XX:PretenureSizeThreshold= size ??,,大于该值的对象直接晋升入老年代（这种对象少用为好）
+内存参数,-XX:SurvivorRatio=8,,Eden区域Survivor区的容量比值，如默认值为8，代表Eden：Survivor1：Survivor2=8:1:1
+GC选择,-XX:-UseSerialGC,,启用串行GC，即采用Serial+Serial Old模式
+GC选择,-XX:-UseParallelGC,,启用并行GC，即采用Parallel Scavenge+Serial Old收集器组合（-Server模式下的默认组合）
+GC选择,-XX:GCTimeRatio=99,,设置用户执行时间占总时间的比例（默认值99，即1%的时间用于GC）。GC时间占总时间的比率.仅在使用ParallelScavenge收集器时生效
+GC选择,-XX:MaxGCPauseMillis=time,,设置GC的最大停顿时间（这个参数只对Parallel Scavenge有效）。
+GC选择,-XX:+UseParNewGC,,使用ParNew+Serial Old收集器组合
+GC选择,-XX:ParallelGCThreads,,设置执行内存回收的线程数，在+UseParNewGC的情况下使用
+GC选择,-XX:+UseParallelOldGC,,使用Parallel Scavenge +Parallel Old组合收集器
+GC选择,-XX:+UseConcMarkSweepGC,,使用ParNew+CMS+Serial Old组合并发收集，优先使用ParNew+CMS，当用户线程内存不足时，采用备用方案Serial Old收集。
+GC选择,-XX:-DisableExplicitGC,,禁止调用System.gc()；但jvm的gc仍然有效
+GC选择,-XX:+ScavengeBeforeFullGC,,新生代GC优先于Full GC执行。在FullGC发生之前触发一次MinorGC
+GC选择,,,"`-XX:`:禁止GC过程无限制的执行,如果过于频繁,就直接发生OutOfMemory"
+GC选择,,,
+GC选择,-XX:InitiatingHeapOccupancyPercent=n,,设置触发标记周期的Java堆占用率阈值.默认占用率是整个Java堆的45%.
+GC选择,-XX:G1HeapRegionSize=n,,"设置的G1区域的大小.值是2的幂,范围是1MB到32MB之间.目标是根据最小的Java堆大小划分出约2048个区域."
+GC选择,-XX:G1ReservePercent=n,,"设置作为空闲空间的预留内存百分比,以降低目标空间溢出的风险.默认值是10%.增加或减少百分比时,请确保对总的Java堆调整相同的量.JavaHotSpotVMbuild23中没有此设置."
+日志和监控,-XX:-CITime,,打印消耗在JIT编译的时间
+日志和监控,-XX:ErrorFile=./hs_err_pid<pid>.log,,保存错误日志或者数据到文件中(-XX:ErrorFile=./hs_err_pid<pid>.log)
+日志和监控,-XX:-ExtendedDTraceProbes,,开启solaris特有的dtrace探针
+日志和监控,-XX:HeapDumpPath=./java_pid<pid>.hprof,,指定导出堆信息时的路径或文件名
+日志和监控,-XX:-HeapDumpOnOutOfMemoryError,,当首次遭遇OOM时导出此时堆中相关信息
+日志和监控,-XX:OnError="<cmd args>;<cmd args>",,出现致命ERROR之后运行自定义命令
+日志和监控,-XX:OnOutOfMemoryError="<cmd args>;<cmd args>",,当首次遭遇OOM时执行自定义命令
+日志和监控,-XX:-PrintClassHistogram,,遇到Ctrl-Break后打印类实例的柱状信息，与jmap -histo功能相同
+日志和监控,-XX:-PrintConcurrentLocks,,遇到Ctrl-Break后打印并发锁的相关信息，与jstack -l功能相同
+日志和监控,-XX:-PrintCommandLineFlags,,打印在命令行中出现过的标记
+日志和监控,-XX:-PrintCompilation,,当一个方法被编译时打印相关信息
+日志和监控,-XX:-PrintGC,,每次GC时打印相关信息
+日志和监控,-XX:-PrintGCDetails,,每次GC时打印详细信息
+日志和监控,-XX:-PrintGCTimeStamps,,打印每次GC的时间戳
+日志和监控,-XX:-TraceClassLoading,,跟踪类的加载信息
+日志和监控,-XX:-TraceClassLoadingPreorder,,跟踪被引用到的所有类的加载信息
+日志和监控,-XX:-TraceClassResolution,,跟踪常量池
+日志和监控,-XX:-TraceClassUnloading,,跟踪类的卸载信息
+日志和监控,-XX:-TraceLoaderConstraints,,跟踪类加载器约束的相关信息
