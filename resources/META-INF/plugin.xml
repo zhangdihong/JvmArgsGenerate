@@ -1,0 +1,33 @@
+<idea-plugin>
+    <id>wang,yu66.ideaplugin</id>
+    <name>JvmArgs</name>
+    <description>A Jvm Args Show Plugin.</description>
+    <version>2.0</version>
+    <vendor email="ming15@hotmail.com" url="http://www.yu66.wang">Yu66</vendor>
+
+    <change-notes><![CDATA[
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="141.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="JvmArgs" secondary="true" icon="/plus.png" anchor="right"
+                    factoryClass="wang.yu66.ideaplugin.jvmargs.JvmArgsWindowFactory"/>
+
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+</idea-plugin>
