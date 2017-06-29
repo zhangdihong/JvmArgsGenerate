@@ -30,15 +30,13 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
 
     private JTabbedPane tabbedPane;
     private JTextArea selectedArgsArea;
-    private JTextArea argDetailArea;
-    private JScrollPane argDetailsPane;
+    private JTextPane textPane1;
 
     public JvmArgsWindowFactory() {
-        argDetailArea.setLineWrap(true);        //激活自动换行功能
-        argDetailArea.setWrapStyleWord(true);            // 激活断行不断字功能
-
         selectedArgsArea.setLineWrap(true);        //激活自动换行功能
         selectedArgsArea.setWrapStyleWord(true);            // 激活断行不断字功能
+
+        textPane1.setContentType("text/html");
     }
     private Map<String, ArrayList<String>> selected = new HashMap<>();
 
@@ -149,7 +147,7 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
     private void updateArgDetailArea(int row, String type) {
         List<JvmArgsTableModelData.JvmArg> datas = JvmArgsTableModelData.allArgs.get(type);
         JvmArgsTableModelData.JvmArg data = datas.get(row);
-        argDetailArea.setText(data.comment);
+        textPane1.setText(data.comment);
     }
 
     private void setBorder(JTable table) {

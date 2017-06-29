@@ -18,20 +18,36 @@ import java.util.List;
  */
 public class GenerateJvmArgsCSVFile {
 
-    private static final String FILE_NAME = "d://jvm.csv";
+    private static final String FILE_NAME = "../gui/resources/jvm8_unix.csv";
 
-    private static final String[] header = {"Type", "Argument", "Comment"};
-
-    private static final CSVFormat CSV_FORMAT = CSVFormat.DEFAULT.withRecordSeparator("{|}");
+    private static final CSVFormat CSV_FORMAT = CSVFormat.EXCEL;
     private static final List<String> writable = new ArrayList();
 
-    private static final String[] types = {"Standard Options",
+    private static final String[] types = {
+            "Standard Options",
             "Non-Standard Options",
             "Advanced Runtime Options",
             "Advanced JIT Compiler Options",
             "Advanced Serviceability Options",
-            "Advanced Garbage Collection Options"
-            , ""};
+            "Advanced Garbage Collection Options",
+            "",
+            "",
+    };
+
+    private static final String[] SELECTORS = {
+            "#JSSOR624 > div:nth-child(6) > div:nth-child(10) > dl",
+            "#JSSOR624 > div:nth-child(6) > div:nth-child(11) > dl",
+            "#JSSOR624 > div:nth-child(6) > div:nth-child(12) > dl",
+            "#JSSOR624 > div:nth-child(6) > div:nth-child(13) > dl",
+            "#JSSOR624 > div:nth-child(6) > div:nth-child(14) > dl",
+            "#JSSOR624 > div:nth-child(6) > div:nth-child(15) > dl",
+            "#JSSOR624 > div:nth-child(6) > div:nth-child(16) > dl",
+            "#JSSOR624 > div:nth-child(6) > div:nth-child(17) > dl"};
+
+    private static final String[] SYSTEMS = {"unix",    // unix, linux, macos  使用的都是这个页面下的参数
+//            "windows",
+    };
+
     private static FileWriter fileWriter = null;
     private static CSVPrinter csvPrinter = null;
 
@@ -52,21 +68,25 @@ public class GenerateJvmArgsCSVFile {
 
     public static void main(String[] args) {
 
+        parseFromJsoup();
+    }
+
+    private static void parseFromJsoup() {
         try {
-            Document doc = Jsoup.connect("http://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html").get();
-            for (int start = 0; start <= 6; start++) {
-                int typeIdx = start + 10;
+            Document doc = getDocument();
+            for (int start = 0; start < SELECTORS.length; start++) {
                 String type = types[start];
+                String selectorStr = SELECTORS[start];
 
                 for (int i = 1; i < 300; ) {
-                    String title = "#JSSOR624 > div:nth-child(6) > div:nth-child(" + typeIdx + ") > dl > dt:nth-child(" + (i++) + ")";
-                    String content = "#JSSOR624 > div:nth-child(6) > div:nth-child(" + typeIdx + ") > dl > dd:nth-child(" + (i++) + ")";
+                    String title = selectorStr + " > dt:nth-child(" + (i++) + ")";
+                    String content = selectorStr + " > dd:nth-child(" + (i++) + ")";
                     Elements titleElements = doc.select(title);
                     Elements contentElements = doc.select(content);
-                    if (titleElements.text().equals("")) {
+                    if (titleElements.size() == 0) {
                         continue;
                     }
-                    System.out.println(title + " [" + typeIdx + "," + i + "] ---> " + " ---> " + titleElements.text());
+
                     StringBuffer contentBuffer = new StringBuffer();
                     for (int j = 0; j < contentElements.size(); j++) {
                         Element c = contentElements.get(j);
@@ -75,10 +95,10 @@ public class GenerateJvmArgsCSVFile {
                             contentBuffer.append(element.text()).append("\n");
                         }
                     }
-
-                    System.out.println(content + " [" + typeIdx + "," + i + "] ---> " + contentBuffer);
-                    write(type, titleElements.text(), contentBuffer.toString());
-
+                    write(type, titleElements.text(), contentElements.html());
+//                    write(type, titleElements.text(), contentBuffer.toString());
+//                    System.out.println("下载[" + selectorStr + "," + i + "] --> " + titleElements.text() + " ---- " + contentBuffer.toString());
+                    System.out.println("下载[" + selectorStr + "," + i + "] ");
                 }
             }
         } catch (IOException e) {
@@ -93,6 +113,10 @@ public class GenerateJvmArgsCSVFile {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static Document getDocument() throws IOException {
+        return Jsoup.connect("http://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html").get();
     }
 
     public static void write(String type, String argument, String comment) {
