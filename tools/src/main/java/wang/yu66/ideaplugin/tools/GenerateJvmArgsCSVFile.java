@@ -12,8 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by wangming on 2017/6/29.
@@ -24,19 +22,33 @@ public class GenerateJvmArgsCSVFile {
 
     private static final String[] header = {"Type", "Argument", "Comment"};
 
-    private static final CSVFormat csvFormat = CSVFormat.DEFAULT.withRecordSeparator("{|}");
-    private static FileWriter fileWriter = null;
-    private static CSVPrinter csvPrinter = null;
-
+    private static final CSVFormat CSV_FORMAT = CSVFormat.DEFAULT.withRecordSeparator("{|}");
     private static final List<String> writable = new ArrayList();
 
     private static final String[] types = {"Standard Options",
-                "Non-Standard Options",
-                "Advanced Runtime Options",
-                "Advanced JIT Compiler Options",
-                "Advanced Serviceability Options",
-                "Advanced Garbage Collection Options"
-        ,""};
+            "Non-Standard Options",
+            "Advanced Runtime Options",
+            "Advanced JIT Compiler Options",
+            "Advanced Serviceability Options",
+            "Advanced Garbage Collection Options"
+            , ""};
+    private static FileWriter fileWriter = null;
+    private static CSVPrinter csvPrinter = null;
+
+    static {
+        File file = new File(FILE_NAME);
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+            file = new File(FILE_NAME);
+            file.createNewFile();
+            fileWriter = new FileWriter(FILE_NAME, true);  // 创建test.csv的字符输出流
+            csvPrinter = new CSVPrinter(fileWriter, CSV_FORMAT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) {
 
@@ -54,7 +66,7 @@ public class GenerateJvmArgsCSVFile {
                     if (titleElements.text().equals("")) {
                         continue;
                     }
-                    System.out.println(title + " [" +typeIdx + "," +i+"] ---> " + " ---> " + titleElements.text());
+                    System.out.println(title + " [" + typeIdx + "," + i + "] ---> " + " ---> " + titleElements.text());
                     StringBuffer contentBuffer = new StringBuffer();
                     for (int j = 0; j < contentElements.size(); j++) {
                         Element c = contentElements.get(j);
@@ -64,40 +76,12 @@ public class GenerateJvmArgsCSVFile {
                         }
                     }
 
-                    System.out.println(content + " [" +typeIdx + "," +i+"] ---> " + contentBuffer);
+                    System.out.println(content + " [" + typeIdx + "," + i + "] ---> " + contentBuffer);
                     write(type, titleElements.text(), contentBuffer.toString());
 
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void write(String type, String argument, String comment) {
-        File file = new File("test.csv");
-        System.out.println(file.getAbsolutePath());
-        try {
-            if (!file.exists()) {
-                fileWriter = new FileWriter(FILE_NAME, true);  // 创建test.csv的字符输出流
-                csvPrinter = new CSVPrinter(fileWriter, csvFormat);
-                csvPrinter.printRecords(header);  // 生成.csv表的字段名
-                System.out.println("执行");
-            } else {
-                fileWriter = new FileWriter(FILE_NAME, true);  // 创建test.csv的字符输出流
-                csvPrinter = new CSVPrinter(fileWriter, csvFormat);
-                System.out.println("文件存在");
-            }
-
-            writable.clear();
-            writable.add(type);
-            writable.add(argument);
-            writable.add(comment);
-            csvPrinter.printRecord(writable);  // 向.csv文件中添加记录数据
-            System.out.println("生成.csv文件");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
@@ -109,6 +93,25 @@ public class GenerateJvmArgsCSVFile {
                 e.printStackTrace();
             }
         }
+    }
 
+    public static void write(String type, String argument, String comment) {
+
+        try {
+            writable.clear();
+            writable.add(type);
+            writable.add(argument);
+            writable.add(comment);
+            csvPrinter.printRecord(writable);  // 向.csv文件中添加记录数据
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(0);
+            try {
+                fileWriter.close();
+                csvPrinter.close();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
     }
 }

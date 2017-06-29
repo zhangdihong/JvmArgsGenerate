@@ -15,6 +15,8 @@ import java.util.Map;
  */
 public class JvmArgsContent {
 
+    private static final CSVFormat CSV_FORMAT = CSVFormat.DEFAULT.withRecordSeparator("{|}");
+
     public static final String[] COMLUMN_HEADER = new String[]{"参数", "值", "注释", "选中"};
 
     public static Map<String, Object[][]> ALL_ARGS = new HashMap<>();
@@ -41,7 +43,7 @@ public class JvmArgsContent {
     private static Map<String, List<JvmArg>> load() {
         Map<String, List<JvmArg>> allArgs = new HashMap<>();
         try {
-            Reader in = new FileReader("D:\\workspace\\JvmArgsGenerate\\resources\\jvm.csv");
+            Reader in = new FileReader("D:\\jvm.csv");
             if (in == null) {
                 in = new FileReader("./jvm.csv");
             }
@@ -51,13 +53,13 @@ public class JvmArgsContent {
             if (in == null) {
                 in = new FileReader("/jvm.csv");
             }
-            Iterable<CSVRecord> records = new CSVParser(in, CSVFormat.EXCEL);
+
+            Iterable<CSVRecord> records = new CSVParser(in, CSV_FORMAT);
             for (CSVRecord record : records) {
                 JvmArg jvmArg = new JvmArg();
                 jvmArg.type = record.get(0);
                 jvmArg.arg = record.get(1);
-                jvmArg.value = record.get(2);
-                jvmArg.comment = record.get(3);
+                jvmArg.comment = record.get(2);
 
                 String[] array = jvmArg.arg.split("=");
                 if (array.length > 1 && (jvmArg.value == null || jvmArg.value.equals(""))) {

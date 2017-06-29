@@ -1,6 +1,5 @@
 package wang.yu66.ideaplugin.jvmargs;
 
-import clojure.lang.Obj;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -45,9 +44,6 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
             JTable table = new JBTable();
             table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 
-            // 设置自动换行
-//            table.setDefaultRenderer(Object.class,  new TableCellTextAreaRenderer());
-
             JScrollPane jScrollPane = new JBScrollPane(table);
             memoryTabbedPane.addTab(type, jScrollPane);
 
@@ -57,9 +53,7 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
                 selected.put(type, list);
             }
             this.init(list, table, value);
-
         }
-
     }
 
     public void init(ArrayList<String> list, JTable table, Object[][] args) {
@@ -135,30 +129,6 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
             stringBuffer.append(" ");
         }
 
-    }
-
-    class TableCellTextAreaRenderer extends JTextArea implements TableCellRenderer {
-        public TableCellTextAreaRenderer() {
-            setLineWrap(true);
-            setWrapStyleWord(true);
-        }
-
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus, int row, int column) {
-            // 计算当下行的最佳高度
-            int maxPreferredHeight = 0;
-            for (int i = 0; i < table.getColumnCount(); i++) {
-                setText("" + table.getValueAt(row, i));
-                setSize(table.getColumnModel().getColumn(column).getWidth(), 0);
-                maxPreferredHeight = Math.max(maxPreferredHeight, getPreferredSize().height);
-            }
-
-            if (table.getRowHeight(row) != maxPreferredHeight)  // 少了这行则处理器瞎忙
-                table.setRowHeight(row, maxPreferredHeight);
-
-            setText(value == null ? "" : value.toString());
-            return this;
-        }
     }
 
     class JvmArgTableModel extends AbstractTableModel {
