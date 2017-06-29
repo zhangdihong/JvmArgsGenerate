@@ -31,7 +31,7 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
 
     private JTabbedPane tabbedPane;
     private JTextArea selectedArgsArea;
-    private JTextPane textPane1;
+    private JTextPane argDetailsPane;
     private JLabel currSelect;
 
     private JTextField query;
@@ -43,7 +43,8 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
         selectedArgsArea.setLineWrap(true);        //激活自动换行功能
         selectedArgsArea.setWrapStyleWord(true);            // 激活断行不断字功能
 
-        textPane1.setContentType("text/html");
+        argDetailsPane.setContentType("text/html");
+        argDetailsPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
         query.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {newFilter(); }
@@ -182,7 +183,8 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
     private void updateArgDetailArea(int row, String type) {
         List<JvmArgsTableModelData.JvmArg> datas = JvmArgsTableModelData.allArgs.get(type);
         JvmArgsTableModelData.JvmArg data = datas.get(row);
-        textPane1.setText(data.comment);
+        argDetailsPane.setText(data.comment);
+        currSelect.setText(data.arg);
     }
 
     private void setBorder(JTable table) {
