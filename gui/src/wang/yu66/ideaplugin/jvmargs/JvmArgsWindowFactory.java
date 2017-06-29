@@ -7,14 +7,17 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.table.JBTable;
-import wang.yu66.ideaplugin.jvmargs.config.JvmArgsContent;
+import wang.yu66.ideaplugin.jvmargs.config.JvmArgsTableModelData;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
+import java.util.List;
 
 import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
 
@@ -25,10 +28,18 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
 
     private JPanel tabbedPanel;
 
-    private JTabbedPane memoryTabbedPane;
-    private JTextArea output;
+    private JTabbedPane tabbedPane;
+    private JTextArea selectedArgsArea;
+    private JTextArea argDetailArea;
+    private JScrollPane argDetailsPane;
 
-    public JvmArgsWindowFactory() {}
+    public JvmArgsWindowFactory() {
+        argDetailArea.setLineWrap(true);        //激活自动换行功能
+        argDetailArea.setWrapStyleWord(true);            // 激活断行不断字功能
+
+        selectedArgsArea.setLineWrap(true);        //激活自动换行功能
+        selectedArgsArea.setWrapStyleWord(true);            // 激活断行不断字功能
+    }
     private Map<String, ArrayList<String>> selected = new HashMap<>();
 
     // Create the tool window content.
@@ -37,7 +48,7 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
         Content content = contentFactory.createContent(tabbedPanel, "", false);
         toolWindow.getContentManager().addContent(content);
 
-        for (Map.Entry<String, Object[][]> entry : JvmArgsContent.ALL_ARGS.entrySet()) {
+        for (Map.Entry<String, Object[][]> entry : JvmArgsTableModelData.ALL_ARGS.entrySet()) {
             String type = entry.getKey();
             Object[][] value = entry.getValue();
 
@@ -45,44 +56,100 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
             table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 
             JScrollPane jScrollPane = new JBScrollPane(table);
-            memoryTabbedPane.addTab(type, jScrollPane);
+            tabbedPane.addTab(type, jScrollPane);
 
-            ArrayList<String> list = selected.get(type);
-            if (list == null) {
-                list = new ArrayList<>();
-                selected.put(type, list);
+            ArrayList<String> someTypeSelected = selected.get(type);
+            if (someTypeSelected == null) {
+                someTypeSelected = new ArrayList<>();
+                selected.put(type, someTypeSelected);
             }
-            this.init(list, table, value);
+            this.init(someTypeSelected, table, value, type);
         }
     }
 
-    public void init(ArrayList<String> list, JTable table, Object[][] args) {
+    public void init(ArrayList<String> someTypeSelected, JTable table, Object[][] args, String type) {
 
-        table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+        table.setPreferredScrollableViewportSize(new Dimension(
+                JvmArgsTableModelData.TABBED_PANEL_WIDTH,
+                JvmArgsTableModelData.TABBED_PANEL_HEIGHT));
+
         table.setFillsViewportHeight(true);
-        setModel(table, args);
+        table.setModel(new JvmArgTableModel(args, type));
 
         table.getModel().addTableModelListener(e -> {
             if (e.getFirstRow() != e.getLastRow()) {
                 System.out.println(" 为啥不一样呢? : " + e.getFirstRow() + " : " + e.getLastRow());
                 return;
             }
-            String row = e.getFirstRow() + "";
-            if (list.contains(row)) {
-                list.remove(row);
-            } else {
-                list.add(row);
+            if (e.getColumn() == 2) {
+                updateSelectedArgsShowArea(someTypeSelected, e);
             }
-            update();
         });
-        setBorder(table);
 
+        table.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if(table.isCellSelected(table.getSelectedRow(), 0)){
+                    updateArgDetailArea(table.getSelectedRow(), type);
+                }
+            }
+        });
+
+        setBorder(table);
         setColumnWidthAndRowHeight(table);
     }
 
-    private void setModel(JTable table, Object[][] args) {
+    private void updateSelectedArgsShowArea(ArrayList<String> someTypeSelected, TableModelEvent e) {
+        String row = e.getFirstRow() + "";
+        if (someTypeSelected.contains(row)) {
+            someTypeSelected.remove(row);
+        } else {
+            someTypeSelected.add(row);
+        }
+        StringBuffer stringBuffer = new StringBuffer();
+        for (Map.Entry<String, ArrayList<String>> entry : selected.entrySet()) {
+            ArrayList<String> list = entry.getValue();
+            Object[][] config = JvmArgsTableModelData.ALL_ARGS.get(entry.getKey());
+            updateSelectedArgsShowArea(stringBuffer, list, config);
+        }
 
-        table.setModel(new JvmArgTableModel(args));
+        selectedArgsArea.setText(stringBuffer.toString());
+    }
+
+    private void updateSelectedArgsShowArea(StringBuffer outCache, ArrayList<String> selectedArgs, Object[][] configArgs) {
+
+        for (String rowStr : selectedArgs) {
+            int rowIdx = Integer.parseInt(rowStr);
+            Object[] configArg = configArgs[rowIdx];
+            String argName = (String) configArg[0];
+            String argValue = (String) configArg[1];
+            if (argValue != null && !(argValue.equals(""))) {
+                outCache.append(regetArgName(argName));
+                outCache.append("=");
+                outCache.append(argValue);
+            } else {
+                outCache.append(argName);
+            }
+            outCache.append(" ");
+        }
+    }
+
+    private String regetArgName(String argName) {
+        if (argName.contains("[")) {
+            if (argName.contains("[=")) {
+                return argName.split("\\[=")[0];
+            } else if (argName.contains("[:")) {
+                return argName.split("\\[:")[0];
+            }
+        } else if (argName.contains("=")) {
+            return argName.split("=")[0];
+        }
+        return "";
+    }
+
+    private void updateArgDetailArea(int row, String type) {
+        List<JvmArgsTableModelData.JvmArg> datas = JvmArgsTableModelData.allArgs.get(type);
+        JvmArgsTableModelData.JvmArg data = datas.get(row);
+        argDetailArea.setText(data.comment);
     }
 
     private void setBorder(JTable table) {
@@ -93,53 +160,27 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
     private void setColumnWidthAndRowHeight(JTable table) {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        table.setRowHeight(20);
-        int[] maxWidths = {250, 100, 700, 50};
-        for (int i = 0; i < 4; i++) {
-            table.getColumnModel().getColumn(i).setMaxWidth(maxWidths[i]);
-            table.getColumnModel().getColumn(i).setMinWidth(maxWidths[i]);
+        table.setRowHeight(JvmArgsTableModelData.EACH_ROW_HEIGHT);
+
+        for (int i = 0; i < JvmArgsTableModelData.COMLUMN_MAX_WIDTH.length; i++) {
+            table.getColumnModel().getColumn(i).setMaxWidth(JvmArgsTableModelData.COMLUMN_MAX_WIDTH[i]);
+            table.getColumnModel().getColumn(i).setMinWidth(JvmArgsTableModelData.COMLUMN_MAX_WIDTH[i]);
         }
     }
 
-    private void update() {
-        StringBuffer stringBuffer = new StringBuffer();
-        for (Map.Entry<String, ArrayList<String>> entry : selected.entrySet()) {
-            ArrayList<String> list = entry.getValue();
-            Object[][] config = JvmArgsContent.ALL_ARGS.get(entry.getKey());
-            update(stringBuffer, list, config);
-        }
 
-        output.setText(stringBuffer.toString());
-    }
-
-    private void update(StringBuffer stringBuffer, ArrayList<String> list, Object[][] args) {
-
-        for (String rowStr : list) {
-            int rowIdx = Integer.parseInt(rowStr);
-            Object[] arg = args[rowIdx];
-            String arg1 = (String) arg[0];
-            String value = (String) arg[1];
-            if (value != null && !(value.equals(""))) {
-                stringBuffer.append(arg1);
-                stringBuffer.append("=");
-                stringBuffer.append(value);
-            } else {
-                stringBuffer.append(arg1);
-            }
-            stringBuffer.append(" ");
-        }
-
-    }
 
     class JvmArgTableModel extends AbstractTableModel {
         private Object[][] data;
+        private String type;
 
-        JvmArgTableModel(Object[][] data) {
+        JvmArgTableModel(Object[][] data, String type) {
             this.data = data;
+            this.type = type;
         }
 
         public int getColumnCount() {
-            return JvmArgsContent.COMLUMN_HEADER.length;
+            return JvmArgsTableModelData.COMLUMN_HEADER.length;
         }
 
         public int getRowCount() {
@@ -147,11 +188,22 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
         }
 
         public String getColumnName(int col) {
-            return JvmArgsContent.COMLUMN_HEADER[col];
+            return JvmArgsTableModelData.COMLUMN_HEADER[col];
         }
 
         public Object getValueAt(int row, int col) {
-            return data[row][col];
+            Object[] rowData = data[row];
+            if (rowData == null) {
+                System.err.println("getValueAt Row[" + type + "] : " + row + " is null");
+            }
+            if (rowData.length == 0) {
+                System.err.println("getValueAt Row[" + type + "] : " + row + " length is 0");
+            }
+            Object colData = rowData[col];
+            if (colData == null) {
+                System.err.println("getValueAt Col[" + type + "] : " + col + " is null, length: " + rowData.length);
+            }
+            return colData;
         }
 
         /*
@@ -159,11 +211,12 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
          * If we didn't implement this method, then the last column would contain text ("true"/"false"), rather than a check box.
          */
         public Class getColumnClass(int c) {
-            return getValueAt(0, c).getClass();
+            Object value = getValueAt(0, c);
+            return value.getClass();
         }
 
         public boolean isCellEditable(int row, int col) {
-            return col == 1 || col == 3;
+            return JvmArgsTableModelData.COMLUMN_MODIFY[col];
         }
 
         public void setValueAt(Object value, int row, int col) {
