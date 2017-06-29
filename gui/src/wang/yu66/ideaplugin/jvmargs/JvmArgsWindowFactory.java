@@ -13,6 +13,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.*;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -31,14 +32,42 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
     private JTabbedPane tabbedPane;
     private JTextArea selectedArgsArea;
     private JTextPane textPane1;
+    private JLabel currSelect;
+
+    private JTextField query;
+    private List<TableRowSorter<JvmArgTableModel>> sorters = new ArrayList<>();
+
+    private Map<String, ArrayList<String>> selected = new HashMap<>();
 
     public JvmArgsWindowFactory() {
         selectedArgsArea.setLineWrap(true);        //激活自动换行功能
         selectedArgsArea.setWrapStyleWord(true);            // 激活断行不断字功能
 
         textPane1.setContentType("text/html");
+
+        query.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {newFilter(); }
+            public void insertUpdate(DocumentEvent e) {
+                newFilter();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                newFilter();
+            }
+        });
     }
-    private Map<String, ArrayList<String>> selected = new HashMap<>();
+
+    private void newFilter() {
+        try {
+            //If current expression doesn't parse, don't update.
+            RowFilter<JvmArgTableModel, Object> rf = RowFilter.regexFilter(query.getText(), 0);
+            for (TableRowSorter<JvmArgTableModel> sorter : sorters) {
+                sorter.setRowFilter(rf);
+            }
+        } catch (java.util.regex.PatternSyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     // Create the tool window content.
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
@@ -72,7 +101,13 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
                 JvmArgsTableModelData.TABBED_PANEL_HEIGHT));
 
         table.setFillsViewportHeight(true);
-        table.setModel(new JvmArgTableModel(args, type));
+
+        JvmArgTableModel model = new JvmArgTableModel(args, type);
+        table.setModel(model);
+
+        TableRowSorter<JvmArgTableModel> sorter = new TableRowSorter<>(model);
+        table.setRowSorter(sorter);
+        sorters.add(sorter);
 
         table.getModel().addTableModelListener(e -> {
             if (e.getFirstRow() != e.getLastRow()) {
@@ -165,8 +200,6 @@ public class JvmArgsWindowFactory implements ToolWindowFactory {
             table.getColumnModel().getColumn(i).setMinWidth(JvmArgsTableModelData.COMLUMN_MAX_WIDTH[i]);
         }
     }
-
-
 
     class JvmArgTableModel extends AbstractTableModel {
         private Object[][] data;

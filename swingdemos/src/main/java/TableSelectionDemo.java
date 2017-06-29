@@ -1,5 +1,3 @@
-package wang.yu66.ideaplugin.jvmargs.demos;
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
