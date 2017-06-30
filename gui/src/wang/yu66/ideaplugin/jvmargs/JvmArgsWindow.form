@@ -16,7 +16,9 @@
             <maximum-size width="1400" height="-1"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <tabLayoutPolicy value="1"/>
+        </properties>
         <border type="none"/>
         <children/>
       </tabbedpane>
@@ -46,7 +48,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="输入要查询的参数"/>
+          <text value="Argument Name For Filter"/>
         </properties>
       </component>
       <component id="940de" class="javax.swing.JTextField" binding="query">

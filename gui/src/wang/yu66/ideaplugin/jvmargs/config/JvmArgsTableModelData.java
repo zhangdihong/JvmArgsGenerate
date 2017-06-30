@@ -1,8 +1,6 @@
 package wang.yu66.ideaplugin.jvmargs.config;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
+import com.alibaba.fastjson.JSONReader;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,7 +14,6 @@ import java.util.Map;
  */
 public class JvmArgsTableModelData {
 
-    private static final CSVFormat CSV_FORMAT = CSVFormat.EXCEL;
 
     public static final int TABBED_PANEL_WIDTH = 500;
     public static final int TABBED_PANEL_HEIGHT = 70;
@@ -29,7 +26,6 @@ public class JvmArgsTableModelData {
 
     public static Map<String, Object[][]> ALL_ARGS = new HashMap<>();
     public static Map<String, List<JvmArg>> allArgs = new HashMap<>();
-    private static final String[] FILE_NAMES = {"D:\\workspace\\JvmArgsGenerate\\gui\\resources\\jvm8_unix.csv", "./jvm8_unix.csv", "jvm8_unix.csv", "/jvm8_unix.csv"};
     static {
 
         load();
@@ -52,23 +48,12 @@ public class JvmArgsTableModelData {
     private static void load() {
 
         try {
-            File file = null;
-            for (String fileName : FILE_NAMES) {
-                file = new File(fileName);
-                if (file.exists()) {
-                    break;
-                }
-            }
-            if (!file.exists()) {
-                System.err.println("找不到jvm.csv文件");
-            }
-            FileReader in = new FileReader(file);
-            Iterable<CSVRecord> records = new CSVParser(in, CSV_FORMAT);
-            for (CSVRecord record : records) {
-                JvmArg jvmArg = new JvmArg();
-                jvmArg.type = record.get(0);
-                jvmArg.arg = record.get(1);
-                jvmArg.comment = record.get(2);
+            InputStream inputStream = JvmArgsTableModelData.class.getClassLoader().getResourceAsStream("jvm8_unix.json");
+            InputStreamReader fileReader = new InputStreamReader(inputStream);
+            JSONReader jsonReader = new JSONReader(fileReader);
+            jsonReader.startArray();
+            while(jsonReader.hasNext()) {
+                JvmArg jvmArg  = jsonReader.readObject(JvmArg.class);
                 jvmArg.value = "";
 
                 List<JvmArg> args = allArgs.get(jvmArg.type);
@@ -78,6 +63,8 @@ public class JvmArgsTableModelData {
                 }
                 args.add(jvmArg);
             }
+            jsonReader.endArray();
+            jsonReader.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

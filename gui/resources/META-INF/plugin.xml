@@ -3,11 +3,10 @@
     <name>JvmArgs</name>
     <description>A Jvm Args Show Plugin.</description>
     <version>2.0</version>
-    <vendor email="ming15@hotmail.com" url="http://www.yu66.wang">Yu66</vendor>
+    <vendor email="" url="https://github.com/yu66/JvmArgsGenerate">Yu66</vendor>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      Fix Bugs
     ]]>
     </change-notes>
 
@@ -21,9 +20,7 @@
     -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="JvmArgs" secondary="true" icon="/plus.png" anchor="right"
-                    factoryClass="wang.yu66.ideaplugin.jvmargs.JvmArgsWindowFactory"/>
-
+        <toolWindow id="JvmArgs" secondary="true" anchor="right" factoryClass="wang.yu66.ideaplugin.jvmargs.JvmArgsWindowFactory"/>
     </extensions>
 
     <actions>
